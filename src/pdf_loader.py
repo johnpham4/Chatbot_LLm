@@ -1,6 +1,6 @@
 from langchain_community.document_loaders import PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from embeddings import CohereEmbedding
+from .embeddings import CohereEmbedding
 from langchain_community.vectorstores import Chroma
 
 def load_pdf(pdf_path: str):

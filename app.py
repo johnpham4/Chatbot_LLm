@@ -1,6 +1,5 @@
 import gradio as gr
-from utils import generate_response, set_user_response
-from utils import get_context_from_pdf
+from src.utils import generate_response, set_user_response, get_context_from_pdf
 
 # Custom CSS
 custom_css = """

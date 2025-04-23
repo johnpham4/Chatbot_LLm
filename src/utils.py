@@ -2,7 +2,7 @@ import os
 from typing import List, Tuple, Generator
 from openai import OpenAI
 from dotenv import load_dotenv, find_dotenv
-from pdf_utils import load_pdf, split_documents, create_vector_store
+from .pdf_loader import load_pdf, split_documents, create_vector_store
 import warnings
 
 warnings.filterwarnings("ignore")
@@ -14,6 +14,17 @@ client = OpenAI(
     base_url="https://api.fireworks.ai/inference/v1",
     api_key=os.getenv('FIREWORKS_API_KEY')
 )
+
+def get_context_from_pdf(file_path: str):
+    global retriever_from_pdf
+    try:
+        docs = load_pdf(file_path)    
+        chunks = split_documents(docs)
+        vector_store = create_vector_store(chunks)  
+        retriever_from_pdf = vector_store.as_retriever(search_kwargs={"k": 7})
+    except Exception as e:
+        print(f"Lỗi tải pdf: {e}")
+        retriever_from_pdf = None
 
 def chat_completion(messages: List[dict]) -> Generator[str, None, None]:
     try:
@@ -29,18 +40,7 @@ def chat_completion(messages: List[dict]) -> Generator[str, None, None]:
                 yield chunk.choices[0].delta.content
     except Exception as e:
         print(f"Error in chat_completion: {str(e)}")
-
-def get_context_from_pdf(file_path: str):
-    """Tạo retriever từ file PDF và lưu vào biến toàn cục."""
-    global retriever_from_pdf
-    try:
-        docs = load_pdf(file_path)    
-        chunks = split_documents(docs)
-        vector_store = create_vector_store(chunks)  
-        retriever_from_pdf = vector_store.as_retriever(search_kwargs={"k": 7})
-    except Exception as e:
-        print(f"Error loading PDF: {e}")
-        retriever_from_pdf = None
+        
 
 def format_chat_history(chat_history: List[Tuple[str, str]]) -> List[dict]:
     messages = [{
@@ -52,18 +52,15 @@ def format_chat_history(chat_history: List[Tuple[str, str]]) -> List[dict]:
         )
     }]
 
-    if retriever_from_pdf and chat_history and chat_history[-1][0]:
+    if retriever_from_pdf:
         query = chat_history[-1][0]
         try:
             relevant_docs = retriever_from_pdf.get_relevant_documents(query)
             context = "\n\n".join([doc.page_content for doc in relevant_docs])
-            if context:
-                messages.append({
-                    'role': 'system',
-                    'content': f"Here is some context from the uploaded document:\n\n{context}"
-                })
         except Exception as e:
-            print(f"Error retrieving context: {e}")
+            print(f"Lỗi truy vấn: {e}")
+        else:
+            messages.append({'role': 'system', 'content': context})
 
     for user_msg, bot_msg in chat_history:
         if user_msg:
