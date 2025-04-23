@@ -1,32 +1,24 @@
 # 📚 PDF Chat Assistant
 
-An AI-powered chatbot that lets you chat with the content of any PDF file.  
-Built with **LangChain**, **Cohere Embeddings**, and **Fireworks LLaMA-v3**, all wrapped in a sleek **Gradio UI**.
+A lightweight AI chatbot to interact with the content of uploaded PDF files. Powered by Fireworks LLaMA, Cohere embeddings, and LangChain-based retrieval.
 
 ---
 
 ## 🚀 Quickstart
 
-> ⚙️ Works on **Git Bash**, **Windows CMD**, or **macOS/Linux Terminal**.  
-> ❌ Not tested on Anaconda Prompt.
-
-```bash
-# 1️⃣ Clone the repository
+bash
+# 1. Clone the repo
 git clone https://github.com/your-username/pdf-chat-assistant.git
 cd pdf-chat-assistant
 
-# 2️⃣ Create a virtual environment and install dependencies
-python -m venv venv
-# Windows
-venv\Scripts\activate
-# macOS/Linux
-source venv/bin/activate
-
+# 2. Create environment and install dependencies
+conda create -n pdfchat python=3.10 -y && \
+conda activate pdfchat && \
 pip install -r requirements.txt
 
-# 3️⃣ Create a .env file and add your API keys
-echo FIREWORKS_API_KEY=your_fireworks_key >> .env
-echo COHERE_API_KEY=your_cohere_key >> .env
+# 3. Create a .env file with your API keys
+echo "FIREWORKS_API_KEY=your_fireworks_key" >> .env
+echo "COHERE_API_KEY=your_cohere_key" >> .env
 
-# 4️⃣ Start the application
+# 4. Run the app
 python app.py
