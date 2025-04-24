@@ -6,7 +6,7 @@ A lightweight AI chatbot to interact with the content of uploaded PDF files. Pow
 
 ## 🚀 Quickstart
 
-```bash
+bash
 # 1. Clone the repo
 git clone https://github.com/your-username/pdf-chat-assistant.git
 cd pdf-chat-assistant
