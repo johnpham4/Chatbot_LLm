@@ -14,6 +14,11 @@ A lightweight AI chatbot that can interact with users and summarize PDF content.
 
 ---
 
+## 🎥 Demo Video
+
+👉 [Watch the Demo Video](https://drive.google.com/file/d/1-Hm7230_Om8QmtIP3AQzlya8-fQO9dht/view?usp=sharing)
+
+---
 ## ⚙️ Installation
 
 ### 1. Clone the repository
