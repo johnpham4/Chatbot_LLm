@@ -2,7 +2,7 @@ import os
 from typing import List, Tuple, Generator, Optional
 from openai import OpenAI
 from dotenv import load_dotenv, find_dotenv
-from .pdf_loader import load_pdf, split_documents, create_vector_store
+from .document_loader import load_pdf, split_documents, create_vector_store
 import warnings
 
 warnings.filterwarnings("ignore")

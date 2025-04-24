@@ -1,6 +1,6 @@
 import gradio as gr
 from src.utils import generate_response, set_user_response
-from src.pdf_loader import get_context_from_pdf
+from src.document_loader import get_context_form_document
 
 # Custom CSS
 custom_css = """
@@ -19,17 +19,20 @@ custom_css = """
 }
 """
 
-def handle_input(message, chatbot, pdf_path=None):
+def handle_input(message, chatbot, pdf_path=None, url_input=None):
     context = ""
-    if pdf_path:
-        retriever = get_context_from_pdf(pdf_path)
+    if pdf_path or url_input:
+        retriever = get_context_form_document(pdf_path, url_input)
         relevant_docs = retriever.get_relevant_documents(message)
         context = "\n\n".join([doc.page_content for doc in relevant_docs])
+    if url_input:
+        message = f"Website URL: {url_input} \n\n" + message
 
     return set_user_response(message, chatbot, context)
 
-def clear_pdf():
-    return gr.update(value=None)
+def clear():
+    return gr.update(value=None), gr.update(value=None)
+
 
 with gr.Blocks(css=custom_css, theme=gr.themes.Soft()) as demo:
     context_state = gr.State(None)
@@ -66,10 +69,19 @@ with gr.Blocks(css=custom_css, theme=gr.themes.Soft()) as demo:
                 file_types=[".pdf"],
                 elem_classes="upload-area",
             )
+            gr.Markdown("Enter website URL")
+            url_input = gr.Textbox(
+                label=" ",
+                placeholder="Enter website URL",
+                lines=1,
+                max_lines=1,
+                container=False,
+                scale=5
+            )
     
     submit_event = msg.submit(
         fn=handle_input,
-        inputs=[msg, chatbot, pdf_input],
+        inputs=[msg, chatbot, pdf_input, url_input],
         outputs=[msg, chatbot, context_state],
         queue=False,
         api_name=False
@@ -77,11 +89,15 @@ with gr.Blocks(css=custom_css, theme=gr.themes.Soft()) as demo:
         fn=generate_response,
         inputs=[chatbot, context_state], 
         outputs=chatbot
+    ).then(
+        fn=clear,
+        inputs=[],
+        outputs=[pdf_input, url_input]  
     )
     
     submit_btn.click(
         fn=handle_input,
-        inputs=[msg, chatbot, pdf_input],
+        inputs=[msg, chatbot, pdf_input, url_input],
         outputs=[msg, chatbot, context_state],
         queue=False,
         api_name=False
@@ -90,14 +106,13 @@ with gr.Blocks(css=custom_css, theme=gr.themes.Soft()) as demo:
         inputs=[chatbot, context_state],  
         outputs=chatbot
     ).then(
-        fn=clear_pdf,
+        fn=clear,
         inputs=[],
-        outputs=[pdf_input]
-)
-    
-    print("context" , context_state)
+        outputs=[pdf_input, url_input] 
+    )
+
 
 if __name__ == '__main__':
-    demo.launch(share=True)
+    demo.launch()
     
     
