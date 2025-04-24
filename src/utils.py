@@ -21,7 +21,7 @@ def chat_completion(messages: List[dict]) -> Generator[str, None, None]:
             messages=messages,
             stream=True,
             temperature=0.7,
-            max_tokens=1000,
+            max_tokens=1500,
         )
         print(response)
         for chunk in response:
