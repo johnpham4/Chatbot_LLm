@@ -19,8 +19,8 @@ A lightweight AI chatbot that can interact with users and summarize PDF content.
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/your-username/pdf-chat-assistant.git
-cd chatbot_llm
+git clone https://github.com/johnpham4/Chatbot_llm.git
+cd Chatbot_llm
 ```
 
 ---
@@ -30,8 +30,8 @@ cd chatbot_llm
 #### 🅰️ Option A: Using Anaconda (Recommended)
 
 ```bash
-conda create -n pdfchat python=3.10 -y
-conda activate pdfchat
+conda create -n chatbot python=3.10 -y
+conda activate chatbot
 pip install -r requirements.txt
 ```
 
