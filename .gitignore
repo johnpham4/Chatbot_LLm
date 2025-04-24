@@ -9,12 +9,6 @@ logs/
 *.log
 *.log.*
 
-# Environment variables
-.env
-.env.local
-.env.*.local
-
-
 # IDE files
 .vscode/
 .idea/

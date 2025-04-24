@@ -1,5 +1,6 @@
 import gradio as gr
-from src.utils import generate_response, set_user_response, get_context_from_pdf
+from src.utils import generate_response, set_user_response
+from src.pdf_loader import get_context_from_pdf
 
 # Custom CSS
 custom_css = """
@@ -18,15 +19,23 @@ custom_css = """
 }
 """
 
-def handle_input(message, chatbot, pdf_path):
+def handle_input(message, chatbot, pdf_path=None):
+    context = ""
     if pdf_path:
-        get_context_from_pdf(pdf_path)
-    return set_user_response(message, chatbot)
+        retriever = get_context_from_pdf(pdf_path)
+        relevant_docs = retriever.get_relevant_documents(message)
+        context = "\n\n".join([doc.page_content for doc in relevant_docs])
+
+    return set_user_response(message, chatbot, context)
+
+def clear_pdf():
+    return gr.update(value=None)
 
 with gr.Blocks(css=custom_css, theme=gr.themes.Soft()) as demo:
+    context_state = gr.State(None)
     gr.Markdown("""
     <div style="text-align: center; margin-bottom: 20px;">
-        <h1 style="font-weight: 600;">📄 PDF Chat Assistant</h1>
+        <h1 style="font-weight: 600;">PDF Chat Assistant</h1>
         <p style="color: #666;">Upload PDF and ask questions about the document</p>
     </div>
     """)
@@ -36,7 +45,6 @@ with gr.Blocks(css=custom_css, theme=gr.themes.Soft()) as demo:
             chatbot = gr.Chatbot(
                 elem_id="chatbot",
                 label="Conversation",
-                avatar_images=(None, None)  # Có thể thêm avatar sau
             )
             
             with gr.Row():
@@ -56,30 +64,40 @@ with gr.Blocks(css=custom_css, theme=gr.themes.Soft()) as demo:
                 label=" ",
                 type="filepath",
                 file_types=[".pdf"],
-                elem_classes="upload-area"
+                elem_classes="upload-area",
             )
     
     submit_event = msg.submit(
         fn=handle_input,
         inputs=[msg, chatbot, pdf_input],
-        outputs=[msg, chatbot],
-        queue=False
+        outputs=[msg, chatbot, context_state],
+        queue=False,
+        api_name=False
     ).then(
         fn=generate_response,
-        inputs=chatbot,
+        inputs=[chatbot, context_state], 
         outputs=chatbot
     )
     
     submit_btn.click(
         fn=handle_input,
         inputs=[msg, chatbot, pdf_input],
-        outputs=[msg, chatbot],
-        queue=False
+        outputs=[msg, chatbot, context_state],
+        queue=False,
+        api_name=False
     ).then(
         fn=generate_response,
-        inputs=chatbot,
+        inputs=[chatbot, context_state],  
         outputs=chatbot
-    )
+    ).then(
+        fn=clear_pdf,
+        inputs=[],
+        outputs=[pdf_input]
+)
+    
+    print("context" , context_state)
 
 if __name__ == '__main__':
-    demo.launch()
+    demo.launch(share=True)
+    
+    
